@@ -45,6 +45,11 @@
         <artifactId>java-jwt</artifactId>
         <version>4.4.0</version>
     </dependency>
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${jbcrypt.version}</version>
+        </dependency>
 </dependencies>
 
 

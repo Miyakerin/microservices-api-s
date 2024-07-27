@@ -18,9 +18,15 @@ public class UserController {
     private static final String authenticateUserPath = "/authenticate";
 
     private final UserService userService;
+
     @PostMapping(value = saveUserPath)
     public ResponseEntity<UserDto> saveUser(@RequestBody UserDto userDto) {
         return ResponseEntity.ok(userService.save(userDto));
+    }
+
+    @PostMapping(value = authenticateUserPath)
+    public ResponseEntity<UserDto> authenticateUser(@RequestBody UserDto userDto) {
+        return ResponseEntity.ok(userService.authenticate(userDto));
     }
 
 }

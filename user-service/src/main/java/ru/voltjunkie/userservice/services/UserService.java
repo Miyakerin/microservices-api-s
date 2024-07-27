@@ -6,7 +6,7 @@ import ru.voltjunkie.userservice.dto.UserDto;
 import ru.voltjunkie.userservice.exceptions.BadRequestException;
 import ru.voltjunkie.userservice.store.entites.UserEntity;
 import ru.voltjunkie.userservice.store.repositories.UserRepository;
-
+import org.mindrot.jbcrypt.BCrypt;
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -20,12 +20,25 @@ public class UserService {
         final UserEntity userEntity = userRepository.saveAndFlush(
                 UserEntity.builder()
                         .username(userDto.getUsername())
-                        .password(userDto.getPassword()) //to-do change on Crypt
+                        .password(BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt()))
                         .role("USER")
                         .build()
         );
         userDto.setRole(userEntity.getRole());
         userDto.setId(userEntity.getId());
         return userDto;
+    }
+
+    public UserDto authenticate(UserDto userDto) {
+        UserEntity userEntity = userRepository.findByUsername(userDto.getUsername())
+                .orElseThrow(() -> new BadRequestException("Username or password is incorrect"));
+
+        if (!BCrypt.checkpw(userDto.getPassword(), userEntity.getPassword())) {
+            userDto.setRole("USER");
+            userDto.setId(userEntity.getId());
+            return userDto;
+        }
+
+        throw new BadRequestException("Username or password is incorrect");
     }
 }
