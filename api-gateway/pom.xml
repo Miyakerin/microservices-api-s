@@ -7,6 +7,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>api-gateway</artifactId>
-    <name>Archetype - api-gateway</name>
-    <url>http://maven.apache.org</url>
+
+
 </project>
