@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.voltjunkie.userservice.dto.UserDto;
+import ru.voltjunkie.userservice.exceptions.BadRequestException;
 import ru.voltjunkie.userservice.services.UserService;
 
 @RestController
@@ -22,6 +23,7 @@ public class UserController {
     @PostMapping(value = saveUserPath)
     public ResponseEntity<UserDto> saveUser(@RequestBody UserDto userDto) {
         return ResponseEntity.ok(userService.save(userDto));
+
     }
 
     @PostMapping(value = authenticateUserPath)

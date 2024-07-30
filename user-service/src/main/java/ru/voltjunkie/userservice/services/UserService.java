@@ -24,6 +24,7 @@ public class UserService {
                         .role("USER")
                         .build()
         );
+        userDto.setPassword(userEntity.getPassword());
         userDto.setRole(userEntity.getRole());
         userDto.setId(userEntity.getId());
         return userDto;
@@ -33,9 +34,10 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUsername(userDto.getUsername())
                 .orElseThrow(() -> new BadRequestException("Username or password is incorrect"));
 
-        if (!BCrypt.checkpw(userDto.getPassword(), userEntity.getPassword())) {
+        if (BCrypt.checkpw(userDto.getPassword(), userEntity.getPassword())) {
             userDto.setRole("USER");
             userDto.setId(userEntity.getId());
+            userDto.setPassword(userEntity.getPassword());
             return userDto;
         }
 

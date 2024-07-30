@@ -1,4 +1,4 @@
-package ru.voltjunkie.authenticationservice.dto;
+package ru.voltjunkie.authenticationservice.entities;
 
 import lombok.*;
 
