@@ -22,6 +22,7 @@
     <module>discovery-server</module>
     <module>configuration-server</module>
     <module>test-server</module>
+    <module>notification-service</module>
   </modules>
 
   <properties>
