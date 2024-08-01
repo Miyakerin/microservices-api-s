@@ -51,6 +51,7 @@ public class JwtUtil {
     }
 
     public Map<String, Claim> getAllClaims(String token) {
+        token = token.replace("Bearer ", "");
         return JWT.decode(token).getClaims();
     }
 
@@ -59,8 +60,9 @@ public class JwtUtil {
         return rsaProperties.getPublicKey();
     }
 
-    public Boolean verifyToken(final String token) {
+    public Boolean verifyToken(String token) {
         try {
+            token = token.replace("Bearer ", "");
             final Verification verification = JWT.require(algorithm);
             final JWTVerifier verifier = verification.build();
             verifier.verify(token);

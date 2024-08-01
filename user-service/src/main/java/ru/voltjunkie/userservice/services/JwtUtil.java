@@ -32,12 +32,14 @@ public class JwtUtil {
     private Algorithm algorithm;
 
     public Map<String, Claim> getAllClaims(String token) {
+        token = token.replace("Bearer ", "");
         return JWT.decode(token).getClaims();
     }
 
     public Boolean validateToken(String token) {
         loadKeys();
         try {
+            token = token.replace("Bearer ", "");
             final Verification verification = JWT.require(algorithm).withClaim("tokenType", "ACCESS");
             final JWTVerifier verifier = verification.build();
             verifier.verify(token);

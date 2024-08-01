@@ -90,7 +90,7 @@ public class UserService {
         if (Long.parseLong(claims.get("sub").asString()) == userId || claims.get("role").asString().equals("ADMIN")) {
             UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("user not found"));
             userEntity.setUsername(username.orElse(userEntity.getUsername()));
-            userEntity.setPassword(password.orElse(userEntity.getPassword()));
+            userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));
             if (claims.get("role").asString().equals("ADMIN")) {
                 userEntity.setRole(role.orElse(userEntity.getRole()));
             }
