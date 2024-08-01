@@ -3,32 +3,58 @@ package ru.voltjunkie.userservice.controllers;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.voltjunkie.userservice.dto.UserDto;
 import ru.voltjunkie.userservice.exceptions.BadRequestException;
 import ru.voltjunkie.userservice.services.UserService;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/users")
 @AllArgsConstructor
 public class UserController {
-    private static final String saveUserPath = "";
-    private static final String authenticateUserPath = "/authenticate";
+    private static final String createUserPath = "";
+    private static final String deleteUserPath = "";
+    private static final String updateUserPath = "";
+    private static final String getUserPath = "";
+    private static final String authenticateUserPath = "/authenticate"; // rename in future?
 
     private final UserService userService;
 
-    @PostMapping(value = saveUserPath)
-    public ResponseEntity<UserDto> saveUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.save(userDto));
+    @PostMapping(value = authenticateUserPath)
+    public ResponseEntity<UserDto> authenticateUser(@RequestParam String username, @RequestParam String password) {
+        return ResponseEntity.ok(userService.authenticate(username, password));
+    }
+
+    @PostMapping(value = createUserPath)
+    public ResponseEntity<UserDto> saveUser(@RequestParam String username, @RequestParam String password) {
+        return ResponseEntity.ok(userService.save(username, password));
 
     }
 
-    @PostMapping(value = authenticateUserPath)
-    public ResponseEntity<UserDto> authenticateUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.authenticate(userDto));
+    @GetMapping(value = getUserPath)
+    public ResponseEntity<List<UserDto>> getUsers(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(userService.getUsers(token));
+    }
+
+    @GetMapping(value = getUserPath + "/{userId}")
+    public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(userService.getUser(userId, token));
+    }
+
+    @PatchMapping(value = updateUserPath + "/{userId}")
+    public ResponseEntity<UserDto> updateUser(@RequestHeader("Authorization") String token,
+                                              @PathVariable("userId") Long userId,
+                                              @RequestParam Optional<String> username, @RequestParam Optional<String> password, @RequestParam Optional<String> role) {
+        return ResponseEntity.ok(userService.updateUser(token, userId, username, password, role));
+    }
+
+    @DeleteMapping(value = deleteUserPath + "/{userId}")
+    public ResponseEntity<Boolean> deleteUser(@RequestHeader("Authorization") String token,
+                                              @PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(userService.deleteUser(token, userId));
     }
 
 }

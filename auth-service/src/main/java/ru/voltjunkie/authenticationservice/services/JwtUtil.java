@@ -2,6 +2,7 @@ package ru.voltjunkie.authenticationservice.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.interfaces.Verification;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Configuration
@@ -25,6 +28,7 @@ public class JwtUtil {
     private RSAPublicKey publicKey;
     private RSAPrivateKey privateKey;
     private int expiration;
+    private int refreshExpirationMultiplier;
     private final RsaProperties rsaProperties;
     private final Algorithm algorithm;
 
@@ -34,16 +38,25 @@ public class JwtUtil {
         algorithm = Algorithm.RSA256(publicKey, privateKey);
     }
 
-    public String generateToken(int userId, String role, String tokenType) {
+    public String generateToken(Long userId, String role, String tokenType) {
         return JWT.create()
-                .withSubject(Integer.toString(userId))
+                .withSubject(Long.toString(userId))
                 .withIssuer("voltjunkie.ru")
                 .withExpiresAt(new Date(new Date().getTime() +
-                        (tokenType.equalsIgnoreCase("ACCESS") ? (long) expiration * 1000 : (long) expiration * 1000 * 5)))
+                        (tokenType.equalsIgnoreCase("ACCESS") ? (long) expiration * 1000 : (long) expiration * 1000 * refreshExpirationMultiplier)))
                 .withIssuedAt(new Date())
                 .withClaim("role", role)
                 .withClaim("tokenType", tokenType)
                 .sign(algorithm);
+    }
+
+    public Map<String, Claim> getAllClaims(String token) {
+        return JWT.decode(token).getClaims();
+    }
+
+    public String getPublicKey() {
+        System.out.println();
+        return rsaProperties.getPublicKey();
     }
 
     public Boolean verifyToken(final String token) {
@@ -70,6 +83,7 @@ public class JwtUtil {
             privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
 
             expiration = rsaProperties.getExpiration();
+            refreshExpirationMultiplier = rsaProperties.getRefreshExpirationMultiplier();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);

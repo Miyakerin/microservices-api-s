@@ -5,9 +5,9 @@ import ru.voltjunkie.userservice.store.entites.UserEntity;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity, Integer> {
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
-    Optional<UserEntity> findById(Integer id);
+    Optional<UserEntity> findById(Long id);
 
     Boolean existsByUsername(String username);
 }

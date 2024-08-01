@@ -10,24 +10,38 @@ import ru.voltjunkie.authenticationservice.entities.TokensResponse;
 import ru.voltjunkie.authenticationservice.entities.UserDto;
 import ru.voltjunkie.authenticationservice.services.AuthenticationService;
 
+import java.security.interfaces.RSAPublicKey;
+
 @RestController
 @RequestMapping(value = "/api/auth")
 @AllArgsConstructor
 public class AuthenticationController {
 
-    private static final String authenticatePath = "";
-    private static final String registerPath = "/register";
+    private static final String authenticatePath = "/jwt/authenticate";
+    private static final String registerPath = "/jwt/register";
+    private static final String refreshPath = "/jwt/refresh";
+    private static final String publicKeyPath = "/jwt/publicKey";
 
     private final AuthenticationService authenticationService;
 
     @PostMapping(value = authenticatePath)
-    public ResponseEntity<TokensResponse> authenticate(@RequestBody AuthenticateRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+    public ResponseEntity<TokensResponse> authenticate(@RequestParam String username, @RequestParam String password) {
+        return ResponseEntity.ok(authenticationService.authenticate(username, password));
     }
 
     @PostMapping(value = registerPath)
-    public ResponseEntity<TokensResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+    public ResponseEntity<TokensResponse> register(@RequestParam String username, @RequestParam String password) {
+        return ResponseEntity.ok(authenticationService.register(username, password));
+    }
+
+    @PostMapping(value = refreshPath)
+    public ResponseEntity<TokensResponse> refreshTokens(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(authenticationService.refreshToken(token));
+    }
+
+    @GetMapping(publicKeyPath)
+    public ResponseEntity<String> getPublicKey() {
+        return ResponseEntity.ok(authenticationService.getPublicKey());
     }
 
 }
