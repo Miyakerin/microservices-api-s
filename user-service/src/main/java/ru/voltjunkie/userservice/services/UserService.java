@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import ru.voltjunkie.userservice.dto.EmailDto;
 import ru.voltjunkie.userservice.dto.UserDto;
 import ru.voltjunkie.userservice.exceptions.BadRequestException;
 import ru.voltjunkie.userservice.store.entites.UserEntity;
@@ -41,7 +42,8 @@ public class UserService {
                         .build()
         );
 
-        kafkaProducer.send("emailRegistrationTopic", email);
+        kafkaProducer.send("emailRegistrationTopic",
+                EmailDto.builder().email(email).subject("confirmation").body("test").build());
 
         return UserDto.builder()
                 .id(userEntity.getId())
@@ -108,7 +110,8 @@ public class UserService {
             if (email.isPresent() && !email.get().equalsIgnoreCase(userEntity.getEmail())) {
                 userEntity.setEmail(email.orElse(userEntity.getEmail()));
                 userEntity.setIsEmailConfirmed(false);
-                kafkaProducer.send("emailRegistrationTopic", userEntity.getEmail());
+                kafkaProducer.send("emailRegistrationTopic",
+                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation").body("test").build());
             }
             userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
             userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));

@@ -1,3 +1,15 @@
 spring:
   application:
     name: notification-service
+  mail:
+    host: smtp.xxx.com
+    port: 587
+    username: xxx@gmail.com
+    password: xxx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
