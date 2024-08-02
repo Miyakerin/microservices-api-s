@@ -21,4 +21,8 @@ public class UserEntity {
     private String password;
     @Column(nullable = false, unique = false, name = "role")
     private String role;
+    @Column(nullable = false, unique = true, name = "email")
+    private String email;
+    @Column(nullable = false, unique = false, name = "is_email_confirmed")
+    private Boolean isEmailConfirmed;
 }

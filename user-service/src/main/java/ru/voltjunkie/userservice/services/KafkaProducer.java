@@ -1,4 +1,4 @@
-package ru.voltjunkie.userservice.kafka;
+package ru.voltjunkie.userservice.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

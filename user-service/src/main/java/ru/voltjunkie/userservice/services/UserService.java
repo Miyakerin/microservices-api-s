@@ -22,22 +22,32 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final KafkaProducer kafkaProducer;
 
-    public UserDto save(String username, String password) {
+    public UserDto save(String email, String username, String password) {
         if (userRepository.existsByUsername(username)) {
             throw new BadRequestException("Username is already taken");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new BadRequestException("Email is already taken");
         }
         final UserEntity userEntity = userRepository.saveAndFlush(
                 UserEntity.builder()
                         .username(username)
+                        .email(email)
+                        .isEmailConfirmed(false)
                         .password(BCrypt.hashpw(password, BCrypt.gensalt()))
                         .role("USER")
                         .build()
         );
 
+        kafkaProducer.send("emailRegistrationTopic", email);
+
         return UserDto.builder()
                 .id(userEntity.getId())
                 .username(userEntity.getUsername())
+                .email(userEntity.getEmail())
+                .isEmailConfirmed(userEntity.getIsEmailConfirmed())
                 .role(userEntity.getRole())
                 .password(userEntity.getPassword())
                 .build();
@@ -46,6 +56,10 @@ public class UserService {
     public UserDto authenticate(String username, String password) {
         UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadRequestException("Username or password is incorrect"));
+
+        if (!userEntity.getIsEmailConfirmed()) {
+            throw new BadRequestException("Email not confirmed");
+        }
 
         if (BCrypt.checkpw(password, userEntity.getPassword())) {
             return UserDto.builder()
@@ -82,7 +96,8 @@ public class UserService {
     }
 
 
-    public UserDto updateUser(String token, Long userId, Optional<String> username, Optional<String> password, Optional<String> role) {
+    public UserDto updateUser(String token, Long userId, Optional<String> username, Optional<String> email,
+                              Optional<Boolean> isEmailConfirmed, Optional<String> password, Optional<String> role) {
         if (!jwtUtil.validateToken(token)) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "token not valid");
         }
@@ -90,6 +105,12 @@ public class UserService {
         if (Long.parseLong(claims.get("sub").asString()) == userId || claims.get("role").asString().equals("ADMIN")) {
             UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("user not found"));
             userEntity.setUsername(username.orElse(userEntity.getUsername()));
+            if (email.isPresent() && !email.get().equalsIgnoreCase(userEntity.getEmail())) {
+                userEntity.setEmail(email.orElse(userEntity.getEmail()));
+                userEntity.setIsEmailConfirmed(false);
+                kafkaProducer.send("emailRegistrationTopic", userEntity.getEmail());
+            }
+            userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
             userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));
             if (claims.get("role").asString().equals("ADMIN")) {
                 userEntity.setRole(role.orElse(userEntity.getRole()));

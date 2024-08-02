@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @PostMapping(value = createUserPath)
-    public ResponseEntity<UserDto> saveUser(@RequestParam String username, @RequestParam String password) {
-        return ResponseEntity.ok(userService.save(username, password));
+    public ResponseEntity<UserDto> saveUser(@RequestParam String email, @RequestParam String username, @RequestParam String password) {
+        return ResponseEntity.ok(userService.save(email, username, password));
 
     }
 
@@ -47,8 +47,10 @@ public class UserController {
     @PatchMapping(value = updateUserPath + "/{userId}")
     public ResponseEntity<UserDto> updateUser(@RequestHeader("Authorization") String token,
                                               @PathVariable("userId") Long userId,
-                                              @RequestParam Optional<String> username, @RequestParam Optional<String> password, @RequestParam Optional<String> role) {
-        return ResponseEntity.ok(userService.updateUser(token, userId, username, password, role));
+                                              @RequestParam Optional<String> username, @RequestParam Optional<String> email,
+                                              @RequestParam Optional<Boolean> isEmailConfirmed,
+                                              @RequestParam Optional<String> password, @RequestParam Optional<String> role) {
+        return ResponseEntity.ok(userService.updateUser(token, userId, username, email, isEmailConfirmed, password, role));
     }
 
     @DeleteMapping(value = deleteUserPath + "/{userId}")

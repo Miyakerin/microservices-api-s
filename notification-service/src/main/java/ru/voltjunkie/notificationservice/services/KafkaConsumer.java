@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaConsumer {
 
-    @KafkaListener(topics = "notificationTopic", groupId = "notificationId")
+    @KafkaListener(topics = "emailRegistrationTopic", groupId = "group1")
     public void listen(ConsumerRecord<String, String> record) {
-        System.out.println(record.value());
+        System.out.println(record.key() + ": " + record.value() + "at group1");
     }
 }
