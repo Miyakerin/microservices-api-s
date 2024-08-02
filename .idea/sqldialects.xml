@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/notification-service/src/main/resources/db/migration/notification_db/V0__init_table.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/notification-service/src/main/resources/db/migration/notification_db/V1__add_atributes.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/user-service/src/main/resources/db/migration/user_db/V0__init_table.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/user-service/src/main/resources/db/migration/user_db/V1__new_atributes.sql" dialect="PostgreSQL" />
   </component>

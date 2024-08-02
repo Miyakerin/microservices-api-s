@@ -43,7 +43,7 @@ public class UserService {
         );
 
         kafkaProducer.send("emailRegistrationTopic",
-                EmailDto.builder().email(email).subject("confirmation").body("test").build());
+                EmailDto.builder().email(email).subject("confirmation").body("test").user_id(userEntity.getId()).build());
 
         return UserDto.builder()
                 .id(userEntity.getId())
@@ -111,7 +111,7 @@ public class UserService {
                 userEntity.setEmail(email.orElse(userEntity.getEmail()));
                 userEntity.setIsEmailConfirmed(false);
                 kafkaProducer.send("emailRegistrationTopic",
-                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation").body("test").build());
+                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation").body("test").user_id(userEntity.getId()).build());
             }
             userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
             userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));

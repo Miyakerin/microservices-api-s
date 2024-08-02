@@ -11,4 +11,5 @@ public class EmailDto {
     private String email;
     private String subject;
     private String body;
+    private Long user_id;
 }
