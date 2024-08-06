@@ -30,8 +30,8 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = registerPath)
-    public ResponseEntity<TokensResponse> register(@RequestParam String username, @RequestParam String password) {
-        return ResponseEntity.ok(authenticationService.register(username, password));
+    public ResponseEntity<TokensResponse> register(@RequestParam String username, @RequestParam String password, @RequestParam String email) {
+        return ResponseEntity.ok(authenticationService.register(username, password, email));
     }
 
     @PostMapping(value = refreshPath)

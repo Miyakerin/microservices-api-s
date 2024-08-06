@@ -27,7 +27,7 @@ public class KafkaConsumer {
     public void listen(@Payload EmailDto emailDto, @Headers MessageHeaders headers) {
         LinkEntity link_user = LinkEntity.builder()
                 .userId(emailDto.getUser_id())
-                .exp(new Timestamp(System.currentTimeMillis()*1000*60*20))
+                .exp(new Timestamp(System.currentTimeMillis() + 5*1000))
                 .build();
         //to-do place link for email-confirmation
         //emailDto.setBody();

@@ -37,10 +37,11 @@ public class AuthenticationService {
         return new TokensResponse(accessToken, refreshToken);
     }
 
-    public TokensResponse register(String username, String password) {
+    public TokensResponse register(String username, String password, String email) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
         params.add("username", username);
         params.add("password", password);
+        params.add("email", email);
 
         UserDto userDto = restTemplate.postForObject("http://user-service/api/users", params, UserDto.class);
 
