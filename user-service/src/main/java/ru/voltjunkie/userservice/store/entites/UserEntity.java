@@ -3,6 +3,9 @@ package ru.voltjunkie.userservice.store.entites;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,4 +28,6 @@ public class UserEntity {
     private String email;
     @Column(nullable = false, unique = false, name = "is_email_confirmed")
     private Boolean isEmailConfirmed;
+    @Column(nullable = false, unique = false, name = "is_deleted")
+    private Boolean isDeleted;
 }

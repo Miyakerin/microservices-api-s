@@ -1,8 +1,7 @@
-package ru.voltjunkie.notificationservice.store.entities;
+package ru.voltjunkie.userservice.store.entites;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -13,14 +12,17 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="links")
-public class LinkEntity {
+@Table(name="mail")
+public class MailEntity {
     @Id
-    @Column(nullable = false, unique = true, name = "id")
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, unique = true, name = "id")
     private UUID id;
-    @Column(nullable = true, unique = false, name = "user_id")
-    private Long userId;
     @Column(nullable = false, unique = false, name = "exp")
     private Timestamp exp;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserEntity user;
+
+
 }

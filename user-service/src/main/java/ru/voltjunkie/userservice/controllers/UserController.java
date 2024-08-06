@@ -10,6 +10,7 @@ import ru.voltjunkie.userservice.services.UserService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -19,6 +20,7 @@ public class UserController {
     private static final String deleteUserPath = "";
     private static final String updateUserPath = "";
     private static final String getUserPath = "";
+    private static final String confirmEmailPath = "/email";
     private static final String authenticateUserPath = "/authenticate"; // rename in future?
 
     private final UserService userService;
@@ -57,6 +59,11 @@ public class UserController {
     public ResponseEntity<Boolean> deleteUser(@RequestHeader("Authorization") String token,
                                               @PathVariable("userId") Long userId) {
         return ResponseEntity.ok(userService.deleteUser(token, userId));
+    }
+
+    @GetMapping(value = confirmEmailPath + "/{email_id}")
+    public ResponseEntity<Boolean> confirmEmail(@PathVariable("email_id") UUID emailId) {
+        return ResponseEntity.ok(userService.confirmEmail(emailId));
     }
 
 }

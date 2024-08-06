@@ -8,14 +8,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import ru.voltjunkie.userservice.dto.EmailDto;
 import ru.voltjunkie.userservice.dto.UserDto;
 import ru.voltjunkie.userservice.exceptions.BadRequestException;
+import ru.voltjunkie.userservice.store.entites.MailEntity;
 import ru.voltjunkie.userservice.store.entites.UserEntity;
+import ru.voltjunkie.userservice.store.repositories.MailRepository;
 import ru.voltjunkie.userservice.store.repositories.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final KafkaProducer kafkaProducer;
+    private final MailRepository mailRepository;
 
     public UserDto save(String email, String username, String password) {
         if (userRepository.existsByUsername(username)) {
@@ -37,19 +38,28 @@ public class UserService {
                         .username(username)
                         .email(email)
                         .isEmailConfirmed(false)
+                        .isDeleted(false)
                         .password(BCrypt.hashpw(password, BCrypt.gensalt()))
                         .role("USER")
                         .build()
         );
 
+        MailEntity mailEntity = MailEntity.builder()
+                .user(userEntity)
+                .exp(new Timestamp(System.currentTimeMillis() + 1000*60*5))
+                .build();
+        mailRepository.save(mailEntity);
+
         kafkaProducer.send("emailRegistrationTopic",
-                EmailDto.builder().email(email).subject("confirmation").body("test").user_id(userEntity.getId()).build());
+                EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
+                        .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
 
         return UserDto.builder()
                 .id(userEntity.getId())
                 .username(userEntity.getUsername())
                 .email(userEntity.getEmail())
                 .isEmailConfirmed(userEntity.getIsEmailConfirmed())
+                .isDeleted(userEntity.getIsDeleted())
                 .role(userEntity.getRole())
                 .password(userEntity.getPassword())
                 .build();
@@ -110,8 +120,16 @@ public class UserService {
             if (email.isPresent() && !email.get().equalsIgnoreCase(userEntity.getEmail())) {
                 userEntity.setEmail(email.orElse(userEntity.getEmail()));
                 userEntity.setIsEmailConfirmed(false);
+
+                MailEntity mailEntity = MailEntity.builder()
+                                .user(userEntity)
+                                .exp(new Timestamp(System.currentTimeMillis() + 1000*60*5))
+                                .build();
+                mailRepository.save(mailEntity);
+
                 kafkaProducer.send("emailRegistrationTopic",
-                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation").body("test").user_id(userEntity.getId()).build());
+                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
+                                .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
             }
             userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
             userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));
@@ -134,5 +152,17 @@ public class UserService {
             return true;
         }
         throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not enough permissions");
+    }
+
+    public Boolean confirmEmail(UUID emailId) {
+        MailEntity mailEntity = mailRepository.findById(emailId).orElseThrow(() -> new BadRequestException("mail not found"));
+        if (new Timestamp(System.currentTimeMillis()).before(mailEntity.getExp())) {
+            UserEntity userEntity = mailEntity.getUser();
+            userEntity.setIsEmailConfirmed(true);
+            userRepository.save(userEntity);
+            return true;
+        }
+        return false;
+
     }
 }
