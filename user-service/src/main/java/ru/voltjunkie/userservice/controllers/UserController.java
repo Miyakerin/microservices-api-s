@@ -51,8 +51,9 @@ public class UserController {
                                               @PathVariable("userId") Long userId,
                                               @RequestParam Optional<String> username, @RequestParam Optional<String> email,
                                               @RequestParam Optional<Boolean> isEmailConfirmed,
+                                              @RequestParam Optional<Boolean> isDeleted,
                                               @RequestParam Optional<String> password, @RequestParam Optional<String> role) {
-        return ResponseEntity.ok(userService.updateUser(token, userId, username, email, isEmailConfirmed, password, role));
+        return ResponseEntity.ok(userService.updateUser(token, userId, username, email, isDeleted, isEmailConfirmed, password, role));
     }
 
     @DeleteMapping(value = deleteUserPath + "/{userId}")

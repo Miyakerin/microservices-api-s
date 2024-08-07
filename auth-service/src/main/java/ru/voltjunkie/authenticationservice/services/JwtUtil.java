@@ -61,15 +61,11 @@ public class JwtUtil {
     }
 
     public Boolean verifyToken(String token) {
-        try {
-            token = token.replace("Bearer ", "");
-            final Verification verification = JWT.require(algorithm);
-            final JWTVerifier verifier = verification.build();
-            verifier.verify(token);
-            return true;
-        } catch (final Exception e) {
-            return false;
-        }
+        token = token.replace("Bearer ", "");
+        final Verification verification = JWT.require(algorithm);
+        final JWTVerifier verifier = verification.build();
+        verifier.verify(token);
+        return true;
     }
 
     private void loadKeys() {

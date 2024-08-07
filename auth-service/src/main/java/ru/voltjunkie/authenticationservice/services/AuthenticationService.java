@@ -1,5 +1,6 @@
 package ru.voltjunkie.authenticationservice.services;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import lombok.AllArgsConstructor;

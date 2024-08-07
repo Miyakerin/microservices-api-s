@@ -33,7 +33,7 @@ public class UserService {
         if (userRepository.existsByEmail(email)) {
             throw new BadRequestException("Email is already taken");
         }
-        final UserEntity userEntity = userRepository.saveAndFlush(
+        final UserEntity userEntity = userRepository.save(
                 UserEntity.builder()
                         .username(username)
                         .email(email)
@@ -54,15 +54,7 @@ public class UserService {
                 EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
                         .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
 
-        return UserDto.builder()
-                .id(userEntity.getId())
-                .username(userEntity.getUsername())
-                .email(userEntity.getEmail())
-                .isEmailConfirmed(userEntity.getIsEmailConfirmed())
-                .isDeleted(userEntity.getIsDeleted())
-                .role(userEntity.getRole())
-                .password(userEntity.getPassword())
-                .build();
+        return UserDto.toDto(userEntity);
     }
 
     public UserDto authenticate(String username, String password) {
@@ -73,13 +65,12 @@ public class UserService {
             throw new BadRequestException("Email not confirmed");
         }
 
+        if (userEntity.getIsDeleted()) {
+            throw new BadRequestException("User is deleted");
+        }
+
         if (BCrypt.checkpw(password, userEntity.getPassword())) {
-            return UserDto.builder()
-                    .id(userEntity.getId())
-                    .username(userEntity.getUsername())
-                    .role(userEntity.getRole())
-                    .password(userEntity.getPassword())
-                    .build();
+            return UserDto.toDto(userEntity);
         }
 
         throw new BadRequestException("Username or password is incorrect");
@@ -108,11 +99,14 @@ public class UserService {
     }
 
 
-    public UserDto updateUser(String token, Long userId, Optional<String> username, Optional<String> email,
+    public UserDto updateUser(String token,
+                              Long userId,
+                              Optional<String> username, Optional<String> email, Optional<Boolean> isDeleted,
                               Optional<Boolean> isEmailConfirmed, Optional<String> password, Optional<String> role) {
         if (!jwtUtil.validateToken(token)) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "token not valid");
         }
+
         Map<String, Claim> claims = jwtUtil.getAllClaims(token);
         if (Long.parseLong(claims.get("sub").asString()) == userId || claims.get("role").asString().equals("ADMIN")) {
             UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("user not found"));
@@ -131,11 +125,14 @@ public class UserService {
                         EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
                                 .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
             }
-            userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
+            userEntity.setIsDeleted(isDeleted.orElse(userEntity.getIsDeleted()));
             userEntity.setPassword(password.map(x -> BCrypt.hashpw(x, BCrypt.gensalt())).orElse(userEntity.getPassword()));
+
             if (claims.get("role").asString().equals("ADMIN")) {
                 userEntity.setRole(role.orElse(userEntity.getRole()));
+                userEntity.setIsEmailConfirmed(isEmailConfirmed.orElse(userEntity.getIsEmailConfirmed()));
             }
+            userRepository.save(userEntity);
             return UserDto.toDto(userRepository.save(userEntity));
         }
         throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not enough permissions");
@@ -148,7 +145,8 @@ public class UserService {
         Map<String, Claim> claims = jwtUtil.getAllClaims(token);
         if (Long.parseLong(claims.get("sub").asString()) == userId || claims.get("role").asString().equals("ADMIN")) {
             UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("user not found"));
-            userRepository.delete(userEntity);
+            userEntity.setIsDeleted(true);
+            userRepository.save(userEntity);
             return true;
         }
         throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not enough permissions");

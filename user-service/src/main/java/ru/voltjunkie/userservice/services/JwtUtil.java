@@ -38,15 +38,11 @@ public class JwtUtil {
 
     public Boolean validateToken(String token) {
         loadKeys();
-        try {
-            token = token.replace("Bearer ", "");
-            final Verification verification = JWT.require(algorithm).withClaim("tokenType", "ACCESS");
-            final JWTVerifier verifier = verification.build();
-            verifier.verify(token);
-            return true;
-        } catch (JWTVerificationException e) {
-            return false;
-        }
+        token = token.replace("Bearer ", "");
+        final Verification verification = JWT.require(algorithm).withClaim("tokenType", "ACCESS");
+        final JWTVerifier verifier = verification.build();
+        verifier.verify(token);
+        return true;
     }
 
     private void loadKeys() {
