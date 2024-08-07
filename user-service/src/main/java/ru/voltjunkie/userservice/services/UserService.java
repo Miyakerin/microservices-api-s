@@ -50,8 +50,7 @@ public class UserService {
                 .build();
         mailRepository.save(mailEntity);
 
-        kafkaProducer.send("emailRegistrationTopic",
-                EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
+        kafkaProducer.send(EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
                         .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
 
         return UserDto.toDto(userEntity);
@@ -121,8 +120,7 @@ public class UserService {
                                 .build();
                 mailRepository.save(mailEntity);
 
-                kafkaProducer.send("emailRegistrationTopic",
-                        EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
+                kafkaProducer.send(EmailDto.builder().email(userEntity.getEmail()).subject("confirmation")
                                 .body("uuid - " + mailEntity.getId().toString()).user_id(userEntity.getId()).build());
             }
             userEntity.setIsDeleted(isDeleted.orElse(userEntity.getIsDeleted()));

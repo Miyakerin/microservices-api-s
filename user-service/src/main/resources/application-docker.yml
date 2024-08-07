@@ -1,8 +1,8 @@
 spring:
   config:
-    import: configserver:http://localhost:9297
+    import: configserver:http://configuration-server:9297
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

@@ -1,0 +1,5 @@
+spring:
+  config:
+    import: configserver:http://configuration-server:9297
+
+

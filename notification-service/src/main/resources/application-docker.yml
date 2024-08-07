@@ -1,6 +1,6 @@
 spring:
   config:
-    import: configserver:http://localhost:9297
+    import: configserver:http://configuration-server:9297
   mail:
     host: smtp.xxx.com
     port: 587
@@ -13,8 +13,9 @@ spring:
           starttls:
             enable: true
             required: true
+
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:29092
     consumer:
       group-id: notification_consumer
       auto-offset-reset: earliest

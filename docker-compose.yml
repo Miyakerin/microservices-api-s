@@ -10,6 +10,12 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+      - zookeeper_secrets:/etc/zookeeper/secrets
+    networks:
+      - api
 
   kafka:
     image: confluentinc/cp-kafka:7.6.2
@@ -26,6 +32,16 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "nc", "-vz", "localhost", "9092"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - kafka_secrets:/etc/kafka/secrets
+    networks:
+      - api
 
   user_db:
     container_name: user_db
@@ -52,32 +68,8 @@ services:
           memory: 3G
     networks:
       - postgres
+      - api
 
-  notification_db:
-    container_name: notification_db
-    image: 'postgres:14.3-alpine'
-    environment:
-      POSTGRES_PASSWORD: "root"
-      POSTGRES_USER: "admin"
-      POSTGRES_DB: "notification_db"
-    ports:
-      - "5433:5432"
-    volumes:
-      - notification_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d notification_db" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 3G
-    networks:
-      - postgres
 
   pg_admin:
     container_name: pgadmin_container
@@ -99,12 +91,98 @@ services:
     networks:
       - postgres
 
+
+  discovery-server:
+    container_name: discovery-server
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - api
+
+
+  configuration-server:
+    container_name: configuration-server
+    build:
+      context: ./configuration-server
+      dockerfile: Dockerfile
+    ports:
+     - "9297:9297"
+    depends_on:
+      - discovery-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - api
+
+  user-service:
+    container_name: user-service
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "9002:9002"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - configuration-server
+      - discovery-server
+      - user_db
+      - kafka
+    networks:
+      - api
+
+  notification-service:
+    container_name: notification-service
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8222:8222"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker, secrets
+    depends_on:
+      - configuration-server
+      - discovery-server
+      - kafka
+    networks:
+      - api
+
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "9001:9001"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - configuration-server
+      - discovery-server
+    networks:
+      - api
+
+
 volumes:
   user_db_data:
-  notification_db_data:
   pgadmin_data:
+
+  kafka_data:
+  kafka_secrets:
+
+  zookeeper_data:
+  zookeeper_log:
+  zookeeper_secrets:
+
 
 
 networks:
   postgres:
+    driver: bridge
+  api:
     driver: bridge

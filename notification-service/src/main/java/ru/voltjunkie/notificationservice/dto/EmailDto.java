@@ -2,8 +2,7 @@ package ru.voltjunkie.notificationservice.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
