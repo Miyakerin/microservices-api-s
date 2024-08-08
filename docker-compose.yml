@@ -1,12 +1,32 @@
 version: '3.9'
 
 services:
+  nginx:
+    image: nginx:stable-alpine3.17
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - './nginx/nginx.conf:/etc/nginx/nginx.conf'
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+      - kafka
+      - user_db
+      - configuration-server
+      - discovery-server
+      - user-service
+      - notification-service
+      - auth-service
+    networks:
+      - api
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.2
     container_name: zookeeper
     ports:
       - "2181:2181"
+    restart: unless-stopped
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -24,6 +44,7 @@ services:
       - "9092:9092"
     depends_on:
       - zookeeper
+    restart: unless-stopped
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -67,7 +88,6 @@ services:
           cpus: '1'
           memory: 3G
     networks:
-      - postgres
       - api
 
 
@@ -89,11 +109,12 @@ services:
           cpus: '0.5'
           memory: 1G
     networks:
-      - postgres
+      - api
 
 
   discovery-server:
     container_name: discovery-server
+    restart: unless-stopped
     build:
       context: ./discovery-server
       dockerfile: Dockerfile
@@ -107,6 +128,7 @@ services:
 
   configuration-server:
     container_name: configuration-server
+    restart: unless-stopped
     build:
       context: ./configuration-server
       dockerfile: Dockerfile
@@ -121,6 +143,7 @@ services:
 
   user-service:
     container_name: user-service
+    restart: unless-stopped
     build:
       context: ./user-service
       dockerfile: Dockerfile
@@ -138,6 +161,7 @@ services:
 
   notification-service:
     container_name: notification-service
+    restart: unless-stopped
     build:
       context: ./notification-service
       dockerfile: Dockerfile
@@ -154,6 +178,7 @@ services:
 
   auth-service:
     container_name: auth-service
+    restart: unless-stopped
     build:
       context: ./auth-service
       dockerfile: Dockerfile
@@ -182,7 +207,5 @@ volumes:
 
 
 networks:
-  postgres:
-    driver: bridge
   api:
     driver: bridge
