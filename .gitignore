@@ -38,3 +38,4 @@ build/
 .DS_Store
 /test-server/
 /notification-service/src/main/resources/application-secrets.yml
+/.idea/
