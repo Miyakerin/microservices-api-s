@@ -18,7 +18,6 @@
   <modules>
     <module>user-service</module>
     <module>auth-service</module>
-    <module>api-gateway</module>
     <module>discovery-server</module>
     <module>configuration-server</module>
     <module>notification-service</module>
