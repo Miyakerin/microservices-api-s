@@ -2,7 +2,8 @@ version: '3.9'
 
 services:
   nginx:
-    image: nginx:stable-alpine3.17
+    container_name: nginx
+    image: nginx:stable-alpine3.19-perl
     ports:
       - "80:80"
       - "443:443"
@@ -115,9 +116,7 @@ services:
   discovery-server:
     container_name: discovery-server
     restart: unless-stopped
-    build:
-      context: ./discovery-server
-      dockerfile: Dockerfile
+    image: discovery-server:latest
     ports:
       - "8761:8761"
     environment:
@@ -129,9 +128,7 @@ services:
   configuration-server:
     container_name: configuration-server
     restart: unless-stopped
-    build:
-      context: ./configuration-server
-      dockerfile: Dockerfile
+    image: configuration-server:latest
     ports:
      - "9297:9297"
     depends_on:
@@ -144,9 +141,7 @@ services:
   user-service:
     container_name: user-service
     restart: unless-stopped
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
+    image: user-service:latest
     ports:
       - "9002:9002"
     environment:
@@ -162,9 +157,7 @@ services:
   notification-service:
     container_name: notification-service
     restart: unless-stopped
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+    image: notification-service:latest
     ports:
       - "8222:8222"
     environment:
@@ -179,9 +172,7 @@ services:
   auth-service:
     container_name: auth-service
     restart: unless-stopped
-    build:
-      context: ./auth-service
-      dockerfile: Dockerfile
+    image: auth-service:latest
     ports:
       - "9001:9001"
     environment:
@@ -208,4 +199,3 @@ volumes:
 
 networks:
   api:
-    driver: bridge
