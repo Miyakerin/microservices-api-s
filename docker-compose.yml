@@ -4,6 +4,7 @@ services:
   nginx:
     container_name: nginx
     image: nginx:stable-alpine3.19-perl
+    tty: true
     ports:
       - "80:80"
       - "443:443"
