@@ -33,7 +33,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./nginx/:/etc/nginx
+      - ./nginx/:/etc/nginx/
     build:
       context: ./certbot
       dockerfile: Dockerfile
