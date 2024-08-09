@@ -10,9 +10,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/webdata:/usr/share/nginx/html
-      - ./nginx/nginx-conf:/etc/nginx/conf.d
-      - webdata:/usr/share/nginx/html
-      - letsencrypt:/etc/letsencrypt
+      - ./nginx/nginx-conf/:/etc/nginx/conf.d/
+      - ./certbot/www/:/var/certbot/
     restart: always
     networks:
       - api
@@ -20,8 +19,8 @@ services:
   certbot:
     image: certbot/certbot:latest
     volumes:
-      - letsencrypt:/etc/letsencrypt
-      - webdata:/usr/share/nginx/html
+      - ./certbot/www/:/var/www/certbot/
+      - ./certbot/conf/:/etc/letsencrypt/
     networks:
       - api
 
