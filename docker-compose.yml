@@ -9,18 +9,24 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/webdata:/usr/share/nginx/html
       - ./nginx/nginx-conf/:/etc/nginx/conf.d/:ro
-      - ./certbot/www/:/var/certbot/:ro
+      - www-html:/var/www/html
+      - etc-letsencrypt:/etc/letsencrypt
     restart: always
+    depends_on:
+      - user-service
+      - auth-service
     networks:
       - api
 
   certbot:
     image: certbot/certbot:latest
+    depends_on:
+      - nginx
+    container_name: certbot
     volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
+      - etc-letsencrypt:/etc/letsencrypt
+      - www-html:/var/www/html
     networks:
       - api
 
@@ -197,10 +203,11 @@ volumes:
   zookeeper_log:
   zookeeper_secrets:
 
-  letsencrypt:
-  webdata:
+  etc-letsencrypt:
+  www-html:
 
 
 
 networks:
   api:
+    driver: bridge
