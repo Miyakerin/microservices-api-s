@@ -9,9 +9,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - './nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
-      - './nginx/index.html:/usr/share/nginx/html/index.html'
-      - './certbot/www/:/var/www/certbot/:ro'
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/index.html:/usr/share/nginx/html/index.html
+      - ./certbot/www/:/var/www/certbot/:ro
     restart: always
     depends_on:
       - zookeeper
@@ -30,8 +30,8 @@ services:
     ports:
       - "6000:80"
     volumes:
-      - './certbot/www/:/var/www/certbot/:rw'
-      - './certbot/conf/:/etc/letsencrypt/:re'
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
     networks:
       - api
 
