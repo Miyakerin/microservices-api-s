@@ -12,6 +12,7 @@ services:
       - ./nginx/nginx-conf/:/etc/nginx/conf.d/:ro
       - www-html:/var/www/html
       - etc-letsencrypt:/etc/letsencrypt
+      - ./nginx/static-content:/usr/share/nginx/html
     restart: always
     depends_on:
       - user-service
