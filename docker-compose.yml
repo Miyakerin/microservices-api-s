@@ -13,16 +13,6 @@ services:
       - webdata:/usr/share/nginx/html
       - letsencrypt:/etc/letsencrypt
     restart: always
-    depends_on:
-      - zookeeper
-      - kafka
-      - user_db
-      - configuration-server
-      - discovery-server
-      - user-service
-      - notification-service
-      - auth-service
-      - certbot
     networks:
       - api
 
