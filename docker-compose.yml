@@ -18,7 +18,7 @@ services:
       - user-service
       - auth-service
     networks:
-      - api
+      - network
 
   certbot:
     image: certbot/certbot:latest
@@ -29,7 +29,7 @@ services:
       - etc-letsencrypt:/etc/letsencrypt
       - www-html:/var/www/html
     networks:
-      - api
+      - network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.2
@@ -45,7 +45,7 @@ services:
       - zookeeper_log:/var/lib/zookeeper/log
       - zookeeper_secrets:/etc/zookeeper/secrets
     networks:
-      - api
+      - network
 
   kafka:
     image: confluentinc/cp-kafka:7.6.2
@@ -72,7 +72,7 @@ services:
       - kafka_data:/var/lib/kafka/data
       - kafka_secrets:/etc/kafka/secrets
     networks:
-      - api
+      - network
 
   user_db:
     container_name: user_db
@@ -98,7 +98,7 @@ services:
           cpus: '1'
           memory: 3G
     networks:
-      - api
+      - network
 
 
   pg_admin:
@@ -119,7 +119,7 @@ services:
           cpus: '0.5'
           memory: 1G
     networks:
-      - api
+      - network
 
 
   discovery-server:
@@ -131,7 +131,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     networks:
-      - api
+      - network
 
 
   configuration-server:
@@ -145,7 +145,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     networks:
-      - api
+      - network
 
   user-service:
     container_name: user-service
@@ -161,7 +161,7 @@ services:
       - user_db
       - kafka
     networks:
-      - api
+      - network
 
   notification-service:
     container_name: notification-service
@@ -176,7 +176,7 @@ services:
       - discovery-server
       - kafka
     networks:
-      - api
+      - network
 
   auth-service:
     container_name: auth-service
@@ -190,7 +190,7 @@ services:
       - configuration-server
       - discovery-server
     networks:
-      - api
+      - network
 
 
 volumes:
@@ -210,5 +210,6 @@ volumes:
 
 
 networks:
-  api:
+  network:
+    name: app_network
     driver: bridge
