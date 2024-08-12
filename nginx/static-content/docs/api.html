@@ -21,7 +21,7 @@
     <p>Closed endpoints require a valid Token to be included in the header of the
     request. A Token can be acquired from the Login view above</p>
     <h3 id="user-service-related">User-service related</h3>
-    <p>Each endpoint manipulates or displays information related to the users. Token must me provided with the request:</p>
+    <p>Each endpoint manipulates or displays information related to the users. Token must be provided with the request:</p>
     <ul>
     <li><a href="users/create.html">Create user</a> : <code>POST /api/users?username={value}&amp;email={value}&amp;password={value}</code></li>
     <li><a href="users/get.html">Show user</a> : <code>GET /api/users/{user_id}</code></li>
@@ -34,6 +34,14 @@
     <p>Endoints with public RSA keys</p>
     <ul>
     <li><a href="authenticate/refresh.html">Refresh token</a> : <code>POST /api/auth/jwt/refresh</code></li>
+    </ul>
+    <h3 id="recipes-service-related">Recipes-service related</h3>
+    <p>Each endpoint manipulates or displays information related to the recipes. Token must be provided with the request:</p>
+    <ul>
+        <li><a href="recipes/get_all.html">Get all recipes</a> : <code>GET /api/recipes</code></li>
+        <li><a href="recipes/get.html">Get recipe</a> : <code>GET /api/recipes/{recipe_id}</code></li>
+        <li><a href="recipes/create.html">Create recipe</a> : <code>POST /api/recipes</code></li>
+        <li><a href="recipes/delete.html">Delete recipe</a> : <code>DELETE /api/recipes/{recipe_id}</code></li>
     </ul>
        
 </body>
